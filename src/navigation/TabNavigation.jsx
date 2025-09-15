@@ -8,8 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 const Tab = createBottomTabNavigator();
 
-const Screen = ({ label }: { label: string }) => (
-  <View style={{ flex: 1, backgroundColor: '#F6FAFD', alignItems: 'center', justifyContent: 'center' }}>
+const Screen = ({ label }) => (
+  <View style={{ flex: 1, backgroundColor: '#FFFFFF', alignItems: 'center', justifyContent: 'center' }}>
     <Text style={{ color: '#0B1726', fontSize: 16 }}>{label}</Text>
   </View>
 );
@@ -21,7 +21,7 @@ function CalendarScreen() { return <Screen label="📅 Calendar" />; }
 
 function ConnectionsScreen() {
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#F6FAFD' }}>
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
       <TopNavigation />
     </SafeAreaView>
   );
