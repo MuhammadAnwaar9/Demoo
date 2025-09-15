@@ -30,37 +30,67 @@ const COLORS = {
   divider: '#EEF2F7',
 };
 
+// replace the previous CompanionCard function with this one
 const CompanionCard = memo(function CompanionCard({
   name = 'AMY LOU',
   distance = '2.5 Miles away',
   category = 'Music',
   rate = 50,
   rating = '5.0/5.0',
-  tagline = "I'm all about the vibe—whether it's the adrenaline of a new place, great food, or a cozy chat over coffee. Fun, safe, and memorable times guaranteed.",
+  tagline = "I'm all about the vibe—whether it's the adrenaline of a new place, great food, or a cozy chat. Fun, safe, and memorable times guaranteed.",
   badgeText = 'Empathy Expert',
-  imageUri = 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?q=80&w=800&auto=format&fit=crop', // replace with your asset if you like
+  imageUri = 'https://images.unsplash.com/photo-1552374196-c4e7ffc6e126?q=80&w=800&auto=format&fit=crop',
 }) {
   const [expanded, setExpanded] = useState(false);
 
+  // measurement states
+  const [containerWidth, setContainerWidth] = useState(null);
+  const [measured, setMeasured] = useState(false);
+  const [showReadMore, setShowReadMore] = useState(false);
+  const [trimmedText, setTrimmedText] = useState('');
+
+  const NUMBER_OF_LINES = 2;
+
+  const handleFullTextLayout = e => {
+    if (measured) return;
+    const { lines } = e.nativeEvent;
+    if (lines && lines.length > NUMBER_OF_LINES) {
+      setShowReadMore(true);
+      // take exactly the text that fits in the first 2 lines
+      const visible = lines
+        .slice(0, NUMBER_OF_LINES)
+        .map(l => l.text)
+        .join(''); // <-- remove extra spaces!
+      setTrimmedText(visible.trim());
+    }
+    setMeasured(true);
+  };
+
   const renderDescription = () => {
-    if (!expanded) {
+    if (expanded) {
       return (
-        <Text style={styles.desc} numberOfLines={2}>
+        <Text style={styles.desc}>
           {tagline + ' '}
-          <Text style={styles.link} onPress={() => setExpanded(true)}>
-            Read More…
+          <Text style={styles.link} onPress={() => setExpanded(false)}>
+            Read Less
           </Text>
         </Text>
       );
     }
-    return (
-      <Text style={styles.desc}>
-        {tagline + ' '}
-        <Text style={styles.link} onPress={() => setExpanded(false)}>
-          Read Less
+
+    if (showReadMore && trimmedText) {
+      const safeTrim = trimmedText.slice(0, -16); // adjust -10 if needed
+      return (
+        <Text style={styles.desc}>
+          {safeTrim}
+          <Text style={styles.link} onPress={() => setExpanded(true)}>
+            … Read More
+          </Text>
         </Text>
-      </Text>
-    );
+      );
+    }
+
+    return <Text style={styles.desc}>{tagline}</Text>;
   };
 
   return (
@@ -88,7 +118,14 @@ const CompanionCard = memo(function CompanionCard({
       </View>
 
       {/* Right: Content */}
-      <View style={styles.rightCol}>
+      <View
+        style={styles.rightCol}
+        onLayout={e => {
+          // capture width once so offscreen measurement uses the same width
+          const w = e.nativeEvent.layout.width;
+          if (!containerWidth) setContainerWidth(w);
+        }}
+      >
         {/* Name row + tiny blue icons */}
         <View style={styles.nameRow}>
           <Text style={styles.name}>{name.toUpperCase()}</Text>
@@ -97,14 +134,35 @@ const CompanionCard = memo(function CompanionCard({
           <Globe size={16} color="#0AA9FF" style={styles.nameIcon} />
         </View>
 
-        {/* Description with Read More/Less */}
+        {/* OFFSCREEN full-text measurement (only rendered after we know container width) */}
+        {containerWidth && !measured ? (
+          <Text
+            style={[
+              styles.desc,
+              {
+                width: containerWidth,
+                position: 'absolute',
+                opacity: 0,
+                left: 0,
+                top: 0,
+              },
+            ]}
+            onTextLayout={handleFullTextLayout}
+          >
+            {tagline}
+          </Text>
+        ) : null}
+
+        {/* Visible description with Read More / Read Less behavior */}
         {renderDescription()}
 
         {/* Distance + category chip */}
         <View style={styles.metaRow}>
           <View style={styles.distanceWrap}>
             <MapPin size={16} color={COLORS.sub} />
-            <Text style={styles.distanceText}>{'  ' + distance}</Text>
+            <Text numberOfLines={1} style={styles.distanceText}>
+              {'  ' + distance} sddssdd
+            </Text>
           </View>
 
           <View style={styles.rightChips}>
@@ -278,6 +336,8 @@ const styles = StyleSheet.create({
     color: COLORS.sub,
     fontSize: 13,
     fontWeight: '600',
+
+    width: '60%',
   },
 
   rightChips: {
