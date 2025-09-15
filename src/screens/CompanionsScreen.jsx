@@ -18,7 +18,7 @@ import {
   ShieldCheck,
   Globe,
 } from 'lucide-react-native';
-
+import GradientText from '../components/GradiantText';
 const COLORS = {
   cardBg: '#FFFFFF',
   title: '#204793',
@@ -128,7 +128,10 @@ const CompanionCard = memo(function CompanionCard({
       >
         {/* Name row + tiny blue icons */}
         <View style={styles.nameRow}>
-          <Text style={styles.name}>{name.toUpperCase()}</Text>
+          {/* <Text style={styles.name}>{name.toUpperCase()}</Text> */}
+          <GradientText colors={['#04ADBF', '#204793']} textStyle={styles.name}>
+            {name.toUpperCase()}
+          </GradientText>
           <BadgeCheck size={16} color="#0AA9FF" style={styles.nameIcon} />
           <ShieldCheck size={16} color="#0AA9FF" style={styles.nameIcon} />
           <Globe size={16} color="#0AA9FF" style={styles.nameIcon} />
@@ -203,6 +206,46 @@ const CompanionsScreen = () => {
       <CompanionCard />
       <View style={{ height: 12, backgroundColor: '#f6f4f4ff' }}></View>
       <CompanionCard />
+      <TopTabs />
+    </View>
+  );
+};
+
+const TopTabs = ({
+  tabs = ['CARD STACK', 'QUICK HANGOUT', 'CONNECTIONS'],
+  activeColors = ['#4c669f', '#3b5998', '#192f6a'],
+}) => {
+  const [activeIndex, setActiveIndex] = useState(1); // default selected: QUICK HANGOUT
+
+  return (
+    <View style={styles.container}>
+      {tabs.map((tab, index) => {
+        const isActive = index === activeIndex;
+
+        return (
+          <TouchableOpacity
+            key={index}
+            style={styles.tabWrapper}
+            activeOpacity={0.7}
+            onPress={() => setActiveIndex(index)}
+          >
+            {isActive ? (
+              <LinearGradient
+                colors={activeColors}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.activeTab}
+              >
+                <Text style={styles.activeText}>{tab}</Text>
+              </LinearGradient>
+            ) : (
+              <View style={styles.tab}>
+                <Text style={styles.tabText}>{tab}</Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        );
+      })}
     </View>
   );
 };
@@ -393,5 +436,45 @@ const styles = StyleSheet.create({
     color: COLORS.teal,
     fontWeight: '800',
     fontSize: 12.5,
+  },
+
+
+  container: {
+    width: '90%',
+    backgroundColor: '#D6F5FF',
+    height: 50,
+    borderRadius: 100,
+    alignSelf: 'center',
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: 5,
+  },
+  tabWrapper: {
+    flex: 1,
+    borderRadius: 100,
+    overflow: 'hidden',
+  },
+  tab: {
+    flex: 1,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  tabText: {
+    color: '#2c3e50',
+    fontWeight: '500',
+    fontSize:12
+
+  },
+  activeTab: {
+    flex: 1,
+    borderRadius: 100,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  activeText: {
+    color: 'white',
+    fontWeight: '600',
+    fontSize:12
   },
 });
